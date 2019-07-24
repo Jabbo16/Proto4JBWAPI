@@ -1,0 +1,13 @@
+syntax = "proto3";
+option optimize_for = LITE_RUNTIME;
+import "data.proto";
+package bwapi.game;
+
+
+// TODO
+message FrameUpdate {
+	bwapi.data.Game game = 1;
+}
+
+message EndOfQueue {
+}

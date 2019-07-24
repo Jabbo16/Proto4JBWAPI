@@ -1,0 +1,124 @@
+syntax = "proto3";
+option optimize_for = LITE_RUNTIME;
+
+package bwapi.command;
+
+message SendText {
+    bool toAllies = 1;
+    string text = 2;
+}
+
+message SetScreenPosition {
+    int32 x = 1;
+    int32 y = 2;
+}
+
+message PingMiniMap {
+    int32 x = 1;
+    int32 y = 2;
+}
+
+message Printf {
+    string text = 1;
+}
+
+enum ShapeType {
+    NoShapeType = 0;
+    Text = 1;
+    Box = 2;
+    Triangle = 3;
+    Circle = 4;
+    Ellipse = 5;
+    Dot = 6;
+    Line = 7;
+}
+
+enum CoordinateType {
+    NoCoordinateType = 0;
+    Screen = 1;
+    Map = 2;
+    Mouse = 3;
+}
+
+message Shape {
+    ShapeType type = 1;
+    CoordinateType ctype = 2;
+    int32 x1 = 3;
+    int32 y1 = 4;
+    int32 x2 = 5;
+    int32 y2 = 6;
+    int32 extra1 = 7;
+    int32 extra2 = 8;
+    int32 color = 9;
+    bool isSolid = 10;
+    string text = 11;
+}
+
+message PauseGame {
+}
+
+message ResumeGame {
+}
+
+message LeaveGame {
+}
+
+message RestartGame {
+}
+
+message SetLocalSpeed {
+    int32 speed = 1;
+}
+
+message SetAlliance {
+    int32 playerID = 1;
+    int32 settings = 2;
+}
+
+message SetVision {
+    int32 playerID = 1;
+    int32 settings = 2;
+}
+
+message UnitCommand {
+    repeated int32 unitID = 1;
+    uint32 unitCommandType = 2;
+    int32 targetID = 3;
+    int32 x = 4;
+    int32 y = 5;
+    int32 extra = 6;
+}
+
+message CreateUnit {
+    int32 playerID = 1;
+    int32 unitType = 2;
+    int32 x = 3;
+    int32 y = 4;
+    int32 count = 5;
+}
+
+message KillUnits {
+    repeated int32 unitID = 1;
+    bool removeInstantly = 2;
+}
+
+//Command wrapper, will contain one of the types of commands
+message Command {
+    oneof cmd {
+        SendText sendText = 1;
+        SetScreenPosition setScreenPosition = 2;
+        PingMiniMap pingMiniMap = 3;
+        Printf printf = 4;
+        Shape shape = 5;
+        PauseGame pauseGame = 6;
+        ResumeGame resumeGame = 7;
+        LeaveGame leaveGame = 8;
+        RestartGame restartGame = 9;
+        SetLocalSpeed setLocalSpeed = 10;
+        SetAlliance setAlliance = 11;
+        SetVision setVision = 12;
+        UnitCommand unitCommand = 14;
+        CreateUnit createUnit = 15;
+        KillUnits killUnits = 16;
+    }
+}
