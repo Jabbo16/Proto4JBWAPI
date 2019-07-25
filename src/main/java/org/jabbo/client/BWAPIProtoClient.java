@@ -6,9 +6,7 @@ import org.apache.commons.math3.random.MersenneTwister;
 
 import java.io.IOException;
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.Arrays;
 import java.util.Deque;
 
 public class BWAPIProtoClient {
@@ -29,17 +27,20 @@ public class BWAPIProtoClient {
                 .setBwapiVersion(bwapiVersion)
                 .setTournament(tournament).build();
         MessageOuterClass.Message message = MessageOuterClass.Message.newBuilder().setInitBroadcast(broadcast).build();
-        //MessageOuterClass.Message message = MessageOuterClass.Message.newBuilder().setInitBroadcast(Init.ClientBroadcast.getDefaultInstance()).build();
         byte[] data = message.toByteArray();
         DatagramPacket packet
                 = new DatagramPacket(data, data.length, InetAddress.getByName("255.255.255.255"), 1024);
         socket.send(packet);
-        //byte[] buffer = new byte[1024];
-        //DatagramPacket resp = new DatagramPacket(buffer, buffer.length);
-        //socket.receive(resp);
-        //System.out.println(Arrays.toString(resp.getData()));
+        byte[] buffer = new byte[message.getSerializedSize()];
+        DatagramPacket resp = new DatagramPacket(buffer, buffer.length);
+        socket.receive(resp);
+        byte[] response = new byte[resp.getLength()];
+        System.arraycopy(resp.getData(), 0, response, resp.getOffset(), resp.getLength());
+
+        MessageOuterClass.Message received = MessageOuterClass.Message.parseFrom(response);
+        System.out.println(received.toString());
         socket.close();
-        // TODO finish
+        // TODO finish TCP conn
 
     }
 
