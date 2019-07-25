@@ -12,8 +12,6 @@ repositories {
 
 dependencies {
     compile 'com.google.protobuf:protobuf-java:3.9.0'
-    // util dependency to convert to JSON
-    compile 'com.google.protobuf:protobuf-java-util:3.9.0'
     compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
 }
 

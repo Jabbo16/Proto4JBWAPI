@@ -1,5 +1,6 @@
 package org.jabbo.client;
 
+import bwapi.init.Init;
 import bwapi.message.MessageOuterClass;
 import org.apache.commons.math3.random.MersenneTwister;
 
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.Deque;
 
 public class BWAPIProtoClient {
@@ -18,25 +20,25 @@ public class BWAPIProtoClient {
         this.udpbound = false;
     }
 
-    public void checkForConnection(int apiVersion, String engineType, String engineVersion) throws IOException {
+    public void lookForServer(int apiVersion, String bwapiVersion, boolean tournament) throws IOException {
         if (isConnected()) return;
-        String sender = "0.0.0.0";
-        ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
-        if (!udpbound){
-            udpSocket.bind(new InetSocketAddress(sender, 1024));
-            udpbound = true;
-        }
-        int port = udpSocket.socket().getLocalPort();
-        int bytesRead = udpSocket.read(byteBuffer);
-        MessageOuterClass.Message currentMessage = MessageOuterClass.Message.parseFrom(byteBuffer);
-        System.out.println(currentMessage.toString());
-
-        if (!currentMessage.hasInitBroadcast()) return;
-        // TODO finish
-    }
-
-    public void lookForServer(int apiVersion, String bwapiVersion, boolean tournament){
-        if (isConnected()) return;
+        DatagramSocket socket = new DatagramSocket();
+        socket.setBroadcast(true);
+        Init.ClientBroadcast broadcast = Init.ClientBroadcast.newBuilder()
+                .setApiVersion(apiVersion)
+                .setBwapiVersion(bwapiVersion)
+                .setTournament(tournament).build();
+        MessageOuterClass.Message message = MessageOuterClass.Message.newBuilder().setInitBroadcast(broadcast).build();
+        //MessageOuterClass.Message message = MessageOuterClass.Message.newBuilder().setInitBroadcast(Init.ClientBroadcast.getDefaultInstance()).build();
+        byte[] data = message.toByteArray();
+        DatagramPacket packet
+                = new DatagramPacket(data, data.length, InetAddress.getByName("255.255.255.255"), 1024);
+        socket.send(packet);
+        //byte[] buffer = new byte[1024];
+        //DatagramPacket resp = new DatagramPacket(buffer, buffer.length);
+        //socket.receive(resp);
+        //System.out.println(Arrays.toString(resp.getData()));
+        socket.close();
         // TODO finish
 
     }
