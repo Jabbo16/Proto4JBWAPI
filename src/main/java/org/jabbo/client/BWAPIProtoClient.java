@@ -6,7 +6,6 @@ import org.apache.commons.math3.random.MersenneTwister;
 
 import java.io.IOException;
 import java.net.*;
-import java.nio.channels.SocketChannel;
 import java.util.Deque;
 
 public class BWAPIProtoClient {
@@ -20,8 +19,8 @@ public class BWAPIProtoClient {
 
     public void lookForServer(int apiVersion, String bwapiVersion, boolean tournament) throws IOException {
         if (isConnected()) return;
-        DatagramSocket socket = new DatagramSocket();
-        socket.setBroadcast(true);
+        udpSocket = new DatagramSocket();
+        udpSocket.setBroadcast(true);
         Init.ClientBroadcast broadcast = Init.ClientBroadcast.newBuilder()
                 .setApiVersion(apiVersion)
                 .setBwapiVersion(bwapiVersion)
@@ -30,16 +29,16 @@ public class BWAPIProtoClient {
         byte[] data = message.toByteArray();
         DatagramPacket packet
                 = new DatagramPacket(data, data.length, InetAddress.getByName("255.255.255.255"), 1024);
-        socket.send(packet);
+        udpSocket.send(packet);
         byte[] buffer = new byte[message.getSerializedSize()];
         DatagramPacket resp = new DatagramPacket(buffer, buffer.length);
-        socket.receive(resp);
+        udpSocket.receive(resp);
         byte[] response = new byte[resp.getLength()];
         System.arraycopy(resp.getData(), 0, response, resp.getOffset(), resp.getLength());
 
         MessageOuterClass.Message received = MessageOuterClass.Message.parseFrom(response);
         System.out.println(received.toString());
-        socket.close();
+        udpSocket.close();
         // TODO finish TCP conn
 
     }
@@ -80,7 +79,7 @@ public class BWAPIProtoClient {
         return 0;
     }
 
-    private SocketChannel udpSocket; // non blocking
+    private DatagramSocket udpSocket; // should be non blocking
     private Socket tcpSocket; // blocking
     private Deque<MessageOuterClass.Message> messageQueue;
     private MersenneTwister mt;
